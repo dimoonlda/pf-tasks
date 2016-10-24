@@ -1,11 +1,9 @@
 package interview.pf.tasks.services.dao.interfaces;
 
 import interview.pf.tasks.model.Task;
-
-import java.sql.SQLException;
-import java.util.Optional;
+import interview.pf.tasks.services.dao.exception.DaoException;
 
 public interface TaskDao {
-    Optional<Task> save(Task task) throws SQLException;
-    void execute(Task task) throws SQLException;
+    Task save(Task task) throws DaoException;
+    void execute(Task task) throws DaoException;
 }
