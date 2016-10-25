@@ -5,6 +5,8 @@ import interview.pf.tasks.services.dao.interfaces.TaskDao;
 import interview.pf.tasks.services.exceptions.ServiceException;
 import interview.pf.tasks.services.interfaces.TaskService;
 
+import java.util.List;
+
 /**
  * Created by admin on 24.10.2016.
  */
@@ -26,9 +28,27 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public void execute(Task task) throws ServiceException {
+    public void execute(Integer id) throws ServiceException {
         try{
-            taskDao.execute(task);
+            taskDao.execute(id);
+        }catch (Exception e){
+            throw new ServiceException(e);
+        }
+    }
+
+    @Override
+    public List<Task> findAll() throws ServiceException {
+        try{
+            return taskDao.findAll();
+        }catch (Exception e){
+            throw new ServiceException(e);
+        }
+    }
+
+    @Override
+    public List<Task> findAllExecuted() throws ServiceException {
+        try{
+            return taskDao.findAllExecuted();
         }catch (Exception e){
             throw new ServiceException(e);
         }

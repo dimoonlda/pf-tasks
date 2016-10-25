@@ -4,17 +4,17 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Task {
-    private Long id;
+    private Integer id;
     private String title;
     private LocalDateTime deadLine;
     private TaskPriority priority;
     private Boolean expired;
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public Task setId(Long id) {
+    public Task setId(Integer id) {
         this.id = id;
         return this;
     }

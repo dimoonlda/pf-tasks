@@ -10,11 +10,11 @@ import interview.pf.tasks.services.dao.mysql.TaskDaoImpl;
 import interview.pf.tasks.services.exceptions.ServiceException;
 import interview.pf.tasks.services.interfaces.TaskService;
 
-import javax.sql.DataSource;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
+import java.util.function.Consumer;
 
 import static java.lang.String.format;
 
@@ -26,6 +26,7 @@ public class MainConsole {
     static Scanner input = new Scanner(System.in);
 
     private TaskService taskService;
+    private Consumer<Task> showTask = task -> System.out.printf("|%-6s|%-45s|%-14s|%-24s|%-10s\n", task.getId(), task.getTitle(), task.getPriority(), task.getDeadLine(), task.isExpired() ? "+" : "");
 
     public MainConsole(){
         MysqlDataSource mySqlDs = new MysqlDataSource();
@@ -70,11 +71,70 @@ public class MainConsole {
                 addTaskMenu();
                 break;
             case 2:
+                showTaskListMenu();
                 break;
             default:
                 menu();
                 break;
         }
+    }
+
+    private void showTaskListMenu() {
+        System.out.println("-----------Tasks---------");
+        showTableHead();
+        taskService.findAll().forEach(showTask);
+        showTableFooter();
+        System.out.println("1 - Close task");
+        System.out.println("2 - Show closed tasks");
+        System.out.println("3 - Main menu");
+        int selection = input.nextInt();
+        switch (selection){
+            case 3:
+                menu();
+                break;
+            case 1:
+                closeTaskMenu();
+                break;
+            case 2:
+                showClosedTaskListMenu();
+                break;
+        }
+    }
+
+    private void showClosedTaskListMenu() {
+        System.out.println("----Executed tasks---------");
+        showTableHead();
+        taskService.findAllExecuted().forEach(showTask);
+        showTableFooter();
+        System.out.println("3 - Main menu");
+        int selection = input.nextInt();
+        switch (selection){
+            case 3:
+                menu();
+                break;
+        }
+    }
+
+    private void closeTaskMenu() {
+        System.out.println("Set task as done[task id]:");
+        Integer doneTaskId  = input.nextInt();
+
+        try {
+            taskService.execute(doneTaskId);
+        }catch (ServiceException e){
+            System.out.println(format("Couldn't close task: %s", e.getMessage()));
+        }
+        showTaskListMenu();
+    }
+
+    private void showTableHead(){
+        System.out.println("--------------------------------------------------------------------------------------------------------");
+        System.out.println("|  ID  |          TITLE                              |   PRIORITY   |        DEADLINE        |  EXPIRED ");
+        System.out.println("--------------------------------------------------------------------------------------------------------");
+    }
+
+    private void showTableFooter(){
+        System.out.println("--------------------------------------------------------------------------------------------------------");
     }
 
     private void addTaskMenu(){
@@ -90,7 +150,6 @@ public class MainConsole {
                 .setPriority(TaskPriority.valueOf(priority))
                 .setTitle(title)
                 .setDeadLine(LocalDateTime.parse(deadLineStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-        System.out.println("Task: " + task);
         try {
             this.taskService.save(task);
         }catch (ServiceException e){
